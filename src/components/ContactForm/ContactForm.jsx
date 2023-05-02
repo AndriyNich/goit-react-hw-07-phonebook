@@ -9,8 +9,8 @@ import {
   ErrorMessage,
   Button,
 } from './ContactForm.styled';
-import { addContact } from 'redux/contactsSlice';
-import { getContacts } from 'redux/selectors';
+import { addContact } from 'redux/operations';
+import { selectContacts } from 'redux/selectors';
 
 const ContactSchema = Yup.object().shape({
   name: Yup.string()
@@ -34,11 +34,11 @@ const contains = (contacts, { name }) => {
 
 export const ContactForm = () => {
   const dispatch = useDispatch();
-  const contacts = useSelector(getContacts);
+  const { items } = useSelector(selectContacts);
 
   const handleSubmit = (values, actions) => {
-    if (contains(contacts, values) <= 0) {
-      dispatch(addContact(values.name, values.number));
+    if (contains(items, values) <= 0) {
+      dispatch(addContact({ name: values.name, phone: values.number }));
     } else {
       alert(`User "${values.name}" is already in contacts`);
     }

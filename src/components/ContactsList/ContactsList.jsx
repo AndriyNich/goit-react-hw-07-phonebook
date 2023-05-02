@@ -1,27 +1,31 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { ContactsListWraper, ContactsListItem } from './ContactsList.styled';
 import { ContactItem } from './ContactItem/ContactItem';
-import { getContacts, getFilter } from 'redux/selectors';
-
-const getFilteredContactList = (contacts, filter = '') => {
-  const filterL = filter.toLowerCase().trim();
-  return contacts.filter(elem => elem.name.toLowerCase().includes(filterL));
-};
+import { selectVisibleContacts } from 'redux/selectors';
+import { fetchContacts } from 'redux/operations';
 
 export function ContactsList() {
-  const contacts = useSelector(getContacts);
-  const filter = useSelector(getFilter);
+  const dispatch = useDispatch();
+
+  const { items, isLoading, error } = useSelector(selectVisibleContacts);
+
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
   return (
     <ContactsListWraper>
-      {getFilteredContactList(contacts, filter).map(elem => {
-        return (
-          <ContactsListItem key={elem.id}>
-            <ContactItem item={elem} />
-          </ContactsListItem>
-        );
-      })}
+      {isLoading && !error && <b>Request in progress...</b>}
+      {!isLoading &&
+        JSON.stringify(items, null, 2) &&
+        items.map(elem => {
+          return (
+            <ContactsListItem key={elem.id}>
+              <ContactItem item={elem} />
+            </ContactsListItem>
+          );
+        })}
     </ContactsListWraper>
   );
 }
